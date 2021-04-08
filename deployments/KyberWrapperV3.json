@@ -3,6 +3,19 @@
 	"abi": [
 		{
 			"inputs": [],
+			"name": "ADMIN_VAULT_ADDR",
+			"outputs": [
+				{
+					"internalType": "address",
+					"name": "",
+					"type": "address"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [],
 			"name": "KYBER_ETH_ADDRESS",
 			"outputs": [
 				{
@@ -84,7 +97,46 @@
 					"type": "uint256"
 				}
 			],
-			"stateMutability": "payable",
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "bytes32",
+					"name": "c__0x7b3f7bc4",
+					"type": "bytes32"
+				}
+			],
+			"name": "c_0x7b3f7bc4",
+			"outputs": [],
+			"stateMutability": "pure",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "bytes32",
+					"name": "c__0x95e9ade6",
+					"type": "bytes32"
+				}
+			],
+			"name": "c_0x95e9ade6",
+			"outputs": [],
+			"stateMutability": "pure",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "bytes32",
+					"name": "c__0xcf6966da",
+					"type": "bytes32"
+				}
+			],
+			"name": "c_0xcf6966da",
+			"outputs": [],
+			"stateMutability": "pure",
 			"type": "function"
 		},
 		{
@@ -193,7 +245,7 @@
 					"type": "uint256"
 				}
 			],
-			"stateMutability": "payable",
+			"stateMutability": "nonpayable",
 			"type": "function"
 		},
 		{
@@ -225,6 +277,6 @@
 		}
 	],
 	"networks": {
-		"local": {}
+		"hardhat": {}
 	}
 }

@@ -3,6 +3,19 @@
 	"abi": [
 		{
 			"inputs": [],
+			"name": "ADMIN_VAULT_ADDR",
+			"outputs": [
+				{
+					"internalType": "address",
+					"name": "",
+					"type": "address"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [],
 			"name": "ERR_EMPTY_STRATEGY",
 			"outputs": [
 				{
@@ -616,7 +629,7 @@
 			"inputs": [
 				{
 					"internalType": "uint256",
-					"name": "_startegyId",
+					"name": "_strategyId",
 					"type": "uint256"
 				},
 				{
@@ -713,6 +726,6 @@
 		}
 	],
 	"networks": {
-		"local": {}
+		"frontend_fork": {}
 	}
 }

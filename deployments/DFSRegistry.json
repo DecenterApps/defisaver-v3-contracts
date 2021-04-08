@@ -3,6 +3,19 @@
 	"abi": [
 		{
 			"inputs": [],
+			"name": "ADMIN_VAULT_ADDR",
+			"outputs": [
+				{
+					"internalType": "address",
+					"name": "",
+					"type": "address"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [],
 			"name": "ERR_ALREADY_IN_CONTRACT_CHANGE",
 			"outputs": [
 				{
@@ -426,6 +439,6 @@
 		}
 	],
 	"networks": {
-		"local": {}
+		"frontend_fork": {}
 	}
 }

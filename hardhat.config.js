@@ -13,18 +13,22 @@ require("solidity-coverage");
 module.exports = {
   networks: {
     local: {
-			url: 'http://127.0.0.1:8545'
+			url: 'http://127.0.0.1:8546'
 	  },
     hardhat: {
       forking: {
         url: process.env.ALCHEMY_NODE,
-        blockNumber: 12068716
+       //  blockNumber: 12068716
       }
     },
     mainnet: {
         url: process.env.ALCHEMY_NODE,
         accounts: [process.env.PRIV_KEY_MAINNET],
         gasPrice: 40000000000
+    },
+    frontend_fork: {
+      url: process.env.FRONTEND_FORK_URL,
+      accounts: [process.env.PRIV_KEY_FRONTEND_FORK]
     }
   },
   solidity: "0.7.6",

@@ -3,6 +3,19 @@
 	"abi": [
 		{
 			"inputs": [],
+			"name": "ADMIN_VAULT_ADDR",
+			"outputs": [
+				{
+					"internalType": "address",
+					"name": "",
+					"type": "address"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [],
 			"name": "ERR_RETURN_INDEX_VALUE",
 			"outputs": [
 				{
@@ -133,15 +146,54 @@
 		},
 		{
 			"inputs": [],
-			"name": "chiToken",
+			"name": "adminVault",
 			"outputs": [
 				{
-					"internalType": "contract IGasToken",
+					"internalType": "contract AdminVault",
 					"name": "",
 					"type": "address"
 				}
 			],
 			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "bytes32",
+					"name": "c__0x7b3f7bc4",
+					"type": "bytes32"
+				}
+			],
+			"name": "c_0x7b3f7bc4",
+			"outputs": [],
+			"stateMutability": "pure",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "bytes32",
+					"name": "c__0x89414de4",
+					"type": "bytes32"
+				}
+			],
+			"name": "c_0x89414de4",
+			"outputs": [],
+			"stateMutability": "pure",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "bytes32",
+					"name": "c__0xc499658c",
+					"type": "bytes32"
+				}
+			],
+			"name": "c_0xc499658c",
+			"outputs": [],
+			"stateMutability": "pure",
 			"type": "function"
 		},
 		{
@@ -193,15 +245,9 @@
 		},
 		{
 			"inputs": [],
-			"name": "gasToken",
-			"outputs": [
-				{
-					"internalType": "contract IGasToken",
-					"name": "",
-					"type": "address"
-				}
-			],
-			"stateMutability": "view",
+			"name": "kill",
+			"outputs": [],
+			"stateMutability": "nonpayable",
 			"type": "function"
 		},
 		{
@@ -229,9 +275,32 @@
 			],
 			"stateMutability": "view",
 			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "address",
+					"name": "_token",
+					"type": "address"
+				},
+				{
+					"internalType": "address",
+					"name": "_receiver",
+					"type": "address"
+				},
+				{
+					"internalType": "uint256",
+					"name": "_amount",
+					"type": "uint256"
+				}
+			],
+			"name": "withdrawStuckFunds",
+			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
 		}
 	],
 	"networks": {
-		"local": {}
+		"hardhat": {}
 	}
 }

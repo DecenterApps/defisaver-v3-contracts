@@ -11,7 +11,9 @@ import "./AdminVault.sol";
 contract AdminAuth {
     using SafeERC20 for IERC20;
 
-    AdminVault public constant adminVault = AdminVault(0xCCf3d848e08b94478Ed8f46fFead3008faF581fD);
+    address public constant ADMIN_VAULT_ADDR = 0xCCf3d848e08b94478Ed8f46fFead3008faF581fD;
+
+    AdminVault public constant adminVault = AdminVault(ADMIN_VAULT_ADDR);
 
     modifier onlyOwner() {
         require(adminVault.owner() == msg.sender, "msg.sender not owner");

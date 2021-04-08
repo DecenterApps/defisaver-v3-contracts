@@ -28,6 +28,58 @@
 			"type": "function"
 		},
 		{
+			"inputs": [
+				{
+					"internalType": "bytes32",
+					"name": "c__0x2d010c12",
+					"type": "bytes32"
+				}
+			],
+			"name": "c_0x2d010c12",
+			"outputs": [],
+			"stateMutability": "pure",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "bytes32",
+					"name": "c__0x95e9ade6",
+					"type": "bytes32"
+				}
+			],
+			"name": "c_0x95e9ade6",
+			"outputs": [],
+			"stateMutability": "pure",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "bytes32",
+					"name": "c__0xef00b77f",
+					"type": "bytes32"
+				}
+			],
+			"name": "c_0xef00b77f",
+			"outputs": [],
+			"stateMutability": "pure",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "bytes32",
+					"name": "c__0xf5f68d47",
+					"type": "bytes32"
+				}
+			],
+			"name": "c_0xf5f68d47",
+			"outputs": [],
+			"stateMutability": "pure",
+			"type": "function"
+		},
+		{
 			"inputs": [],
 			"name": "comp",
 			"outputs": [
@@ -375,6 +427,6 @@
 		}
 	],
 	"networks": {
-		"local": {}
+		"hardhat": {}
 	}
 }

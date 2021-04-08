@@ -60,9 +60,6 @@
 		}
 	],
 	"networks": {
-		"local": {
-			"address": "0xD42912755319665397FF090fBB63B1a31aE87Cee",
-			"args": []
-		}
+		"frontend_fork": {}
 	}
 }

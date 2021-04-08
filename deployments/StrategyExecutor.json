@@ -3,6 +3,19 @@
 	"abi": [
 		{
 			"inputs": [],
+			"name": "ADMIN_VAULT_ADDR",
+			"outputs": [
+				{
+					"internalType": "address",
+					"name": "",
+					"type": "address"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [],
 			"name": "ERR_BOT_NOT_APPROVED",
 			"outputs": [
 				{
@@ -16,7 +29,7 @@
 		},
 		{
 			"inputs": [],
-			"name": "ERR_STARTEGY_NOT_ACTIVE",
+			"name": "ERR_STRATEGY_NOT_ACTIVE",
 			"outputs": [
 				{
 					"internalType": "string",
@@ -220,6 +233,6 @@
 		}
 	],
 	"networks": {
-		"local": {}
+		"frontend_fork": {}
 	}
 }

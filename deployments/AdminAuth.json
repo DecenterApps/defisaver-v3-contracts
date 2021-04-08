@@ -3,6 +3,19 @@
 	"abi": [
 		{
 			"inputs": [],
+			"name": "ADMIN_VAULT_ADDR",
+			"outputs": [
+				{
+					"internalType": "address",
+					"name": "",
+					"type": "address"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [],
 			"name": "adminVault",
 			"outputs": [
 				{
@@ -17,14 +30,14 @@
 		{
 			"inputs": [
 				{
-					"internalType": "address",
-					"name": "_newAdminVault",
-					"type": "address"
+					"internalType": "bytes32",
+					"name": "c__0x7b3f7bc4",
+					"type": "bytes32"
 				}
 			],
-			"name": "changeAdminVault",
+			"name": "c_0x7b3f7bc4",
 			"outputs": [],
-			"stateMutability": "nonpayable",
+			"stateMutability": "pure",
 			"type": "function"
 		},
 		{
@@ -59,9 +72,6 @@
 		}
 	],
 	"networks": {
-		"local": {
-			"address": "0xB0f05d25e41FbC2b52013099ED9616f1206Ae21B",
-			"args": []
-		}
+		"hardhat": {}
 	}
 }

@@ -44,6 +44,32 @@
 			"inputs": [
 				{
 					"internalType": "bytes32",
+					"name": "c__0x95e9ade6",
+					"type": "bytes32"
+				}
+			],
+			"name": "c_0x95e9ade6",
+			"outputs": [],
+			"stateMutability": "pure",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "bytes32",
+					"name": "c__0xc3f0ef70",
+					"type": "bytes32"
+				}
+			],
+			"name": "c_0xc3f0ef70",
+			"outputs": [],
+			"stateMutability": "pure",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "bytes32",
 					"name": "_ilk",
 					"type": "bytes32"
 				}
@@ -148,6 +174,6 @@
 		}
 	],
 	"networks": {
-		"local": {}
+		"hardhat": {}
 	}
 }

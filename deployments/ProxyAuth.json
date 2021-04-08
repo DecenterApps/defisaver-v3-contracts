@@ -3,6 +3,19 @@
 	"abi": [
 		{
 			"inputs": [],
+			"name": "ADMIN_VAULT_ADDR",
+			"outputs": [
+				{
+					"internalType": "address",
+					"name": "",
+					"type": "address"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [],
 			"name": "ERR_SENDER_NOT_EXECUTOR",
 			"outputs": [
 				{
@@ -108,6 +121,6 @@
 		}
 	],
 	"networks": {
-		"local": {}
+		"frontend_fork": {}
 	}
 }

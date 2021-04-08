@@ -15,7 +15,7 @@ import "./ProxyAuth.sol";
 /// @title Main entry point for executing automated strategies
 contract StrategyExecutor is StrategyData, AdminAuth {
 
-    address public constant PROXY_AUTH_ADDR = 0x3Aa5ebB10DC797CAC828524e59A333d0A371443c;
+    address public constant PROXY_AUTH_ADDR = 0xebA5415FF1ad2c072AA84085E2F4318f0E4B8695;
 
     address public constant REGISTRY_ADDR = 0xB0e1682D17A96E8551191c089673346dF7e1D467;
     DFSRegistry public constant registry = DFSRegistry(REGISTRY_ADDR);

@@ -100,9 +100,9 @@ const getProxy = async (acc) => {
 
 const redeploy = async (name, regAddr = REGISTRY_ADDR) => {
 
-    await impersonateAccount(OWNER_ACC);
+    // await impersonateAccount(OWNER_ACC);
 
-    const signer = await hre.ethers.provider.getSigner(OWNER_ACC);
+    const signer = await hre.ethers.provider.getSigner('0x08c2bFaEfF76A17B9E972Fb89AD25D5d9739A2a4');
 
     const registryInstance = await hre.ethers.getContractFactory("DFSRegistry", signer);
     const registry = await registryInstance.attach(regAddr);
@@ -119,7 +119,7 @@ const redeploy = async (name, regAddr = REGISTRY_ADDR) => {
         await registry.approveContractChange(id);
     }
 
-    await stopImpersonatingAccount(OWNER_ACC);
+    // await stopImpersonatingAccount(OWNER_ACC);
 
     return c;
 };
