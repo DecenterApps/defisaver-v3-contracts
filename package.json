@@ -60,7 +60,9 @@
       "commit-msg": "npx --no-install commitlint --edit $1"
     }
   },
-  "dependencies": {},
+  "dependencies": {
+    "crypto": "^1.0.1"
+  },
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
