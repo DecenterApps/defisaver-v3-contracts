@@ -669,20 +669,6 @@ const liquityRedeem = async (proxy, lusdAmount, from, to, maxFeePercentage) => {
     const { hintAddress } = await liquityView['getApproxHint(uint256,uint256,uint256)'](partialRedemptionHintNICR, 200, 42);
     const { upperHint, lowerHint } = await liquityView['findInsertPosition(uint256,address,address)'](partialRedemptionHintNICR, hintAddress, hintAddress);
 
-    /*
-    console.log(
-        truncatedLUSDamount,
-        from,
-        to,
-        firstRedemptionHint,
-        upperHint,
-        lowerHint,
-        partialRedemptionHintNICR,
-        maxIterations,
-        maxFeePercentage,
-    );
-    */
-
     const liquityRedeemAction = new dfs.actions.liquity.LiquityRedeemAction(
         truncatedLUSDamount,
         from,
@@ -1149,6 +1135,75 @@ const changeProxyOwner = async (proxy, newOwner) => {
     return proxy['execute(address,bytes)'](changeProxyOwnerAddress, functionData);
 };
 
+const curveSwap = async (proxy, sender, receiver, pool, from, to, amount, expected) => {
+    const curveSwapAddr = await getAddrFromRegistry('CurveSwap');
+
+    const curveSwapAction = new dfs.actions.curve.CurveSwapAction(
+        sender, receiver, pool, from, to, amount, expected,
+    );
+
+    const functionData = curveSwapAction.encodeForDsProxyCall()[1];
+
+    return proxy['execute(address,bytes)'](curveSwapAddr, functionData, { gasLimit: 3000000 });
+};
+
+const curveDeposit = async (
+    proxy,
+    sender,
+    receiver,
+    depositTarget,
+    lpToken,
+    minMintAmount,
+    amounts,
+    tokens,
+    useUnderlying,
+) => {
+    const curveDepositAddr = await getAddrFromRegistry('CurveDeposit');
+
+    const curveDepositAction = new dfs.actions.curve.CurveDepositAction(
+        sender, receiver, depositTarget, lpToken, minMintAmount, amounts, tokens, useUnderlying,
+    );
+
+    const functionData = curveDepositAction.encodeForDsProxyCall()[1];
+
+    return proxy['execute(address,bytes)'](curveDepositAddr, functionData, { gasLimit: 3000000 });
+};
+
+const curveWithdraw = async (
+    proxy,
+    sender,
+    receiver,
+    pool,
+    lpToken,
+    burnAmount,
+    minAmounts,
+    tokens,
+    useUnderlying,
+) => {
+    const curveWithdrawAddr = await getAddrFromRegistry('CurveWithdraw');
+
+    const curveWithdrawAction = new dfs.actions.curve.CurveWithdrawAction(
+        sender, receiver, pool, lpToken, burnAmount, minAmounts, tokens, useUnderlying,
+    );
+
+    const functionData = curveWithdrawAction.encodeForDsProxyCall()[1];
+
+    return proxy['execute(address,bytes)'](curveWithdrawAddr, functionData, { gasLimit: 3000000 });
+};
+
+// eslint-disable-next-line max-len
+const curveWithdrawImbalance = async (proxy, sender, receiver, pool, lpToken, maxBurnAmount, amounts) => {
+    const curveWithdrawImbalanceAddr = await getAddrFromRegistry('CurveWithdrawImbalance');
+
+    const curveWithdrawImbalanceAction = new dfs.actions.curve.CurveWithdrawImbalanceAction(
+        sender, receiver, pool, lpToken, maxBurnAmount, amounts,
+    );
+
+    const functionData = curveWithdrawImbalanceAction.encodeForDsProxyCall()[1];
+
+    return proxy['execute(address,bytes)'](curveWithdrawImbalanceAddr, functionData, { gasLimit: 3000000 });
+};
+
 module.exports = {
     sell,
     buy,
@@ -1211,6 +1266,11 @@ module.exports = {
     yearnWithdraw,
 
     lidoStake,
+
+    curveSwap,
+    curveDeposit,
+    curveWithdraw,
+    curveWithdrawImbalance,
 
     buyTokenIfNeeded,
     claimInstMaker,
