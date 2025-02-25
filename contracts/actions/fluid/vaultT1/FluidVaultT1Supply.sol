@@ -2,15 +2,14 @@
 
 pragma solidity =0.8.24;
 
-import { IFluidVaultT1 } from "../../../interfaces/fluid/IFluidVaultT1.sol";
-import { FluidHelper } from "../helpers/FluidHelper.sol";
-
+import { IFluidVaultT1 } from "../../../interfaces/fluid/vaults/IFluidVaultT1.sol";
+import { FluidSupplyLiquidityLogic } from "../logic/liquidity/FluidSupplyLiquidityLogic.sol";
+import { FluidLiquidityModel } from "../helpers/FluidLiquidityModel.sol";
+import { FluidVaultTypes } from "../helpers/FluidVaultTypes.sol";
 import { ActionBase } from "../../ActionBase.sol";
-import { TokenUtils } from "../../../utils/TokenUtils.sol";
 
 /// @title Supply assets to Fluid Vault T1 (1_col:1_debt)
-contract FluidVaultT1Supply is ActionBase, FluidHelper {
-    using TokenUtils for address;
+contract FluidVaultT1Supply is ActionBase {
 
     /// @param vault The address of the Fluid Vault T1
     /// @param nftId ID of the NFT representing the position
@@ -59,31 +58,21 @@ contract FluidVaultT1Supply is ActionBase, FluidHelper {
     //////////////////////////////////////////////////////////////*/
     function _supply(Params memory _params) internal returns (uint256, bytes memory) {
         IFluidVaultT1.ConstantViews memory constants = IFluidVaultT1(_params.vault).constantsView();
-        address supplyToken = constants.supplyToken;
 
-        if (supplyToken == TokenUtils.ETH_ADDR) {
-            _params.amount = TokenUtils.WETH_ADDR.pullTokensIfNeeded(_params.from, _params.amount);
-            TokenUtils.withdrawWeth(_params.amount);
+        (, uint256 supplyAmount) = FluidSupplyLiquidityLogic.supply(
+            FluidLiquidityModel.SupplyData({
+                vault: _params.vault,
+                vaultType: FluidVaultTypes.T1_VAULT_TYPE,
+                nftId: _params.nftId,
+                supplyToken: constants.supplyToken,
+                amount: _params.amount,
+                from: _params.from,
+                debtAmount: 0,
+                debtTo: address(0)
+            })
+        );
 
-            IFluidVaultT1(_params.vault).operate{value: _params.amount}(
-                _params.nftId,
-                signed256(_params.amount),
-                0,
-                address(0)
-            );
-        } else {
-            _params.amount = supplyToken.pullTokensIfNeeded(_params.from, _params.amount);
-            supplyToken.approveToken(_params.vault, _params.amount);
-
-            IFluidVaultT1(_params.vault).operate(
-                _params.nftId,
-                signed256(_params.amount),
-                0,
-                address(0)
-            );
-        }
-
-        return (_params.amount, abi.encode(_params));
+        return (supplyAmount, abi.encode(_params));
     }
 
     function parseInputs(bytes memory _callData) public pure returns (Params memory params) {

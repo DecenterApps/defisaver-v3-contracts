@@ -2,18 +2,17 @@
 
 pragma solidity =0.8.24;
 
+import { IFluidVaultResolver } from "../../../interfaces/fluid/resolvers/IFluidVaultResolver.sol";
 import { IERC20 } from "../../../interfaces/IERC20.sol";
-import { IFluidVaultResolver } from "../../../interfaces/fluid/IFluidVaultResolver.sol";
+
+import { FluidVaultTypes } from "./FluidVaultTypes.sol";
 import { FluidHelper } from "./FluidHelper.sol";
+
 import { TokenUtils } from "../../../utils/TokenUtils.sol";
 
 /// @title Helper methods for Fluid ratio calc.
 contract FluidRatioHelper is FluidHelper {
-
-    uint256 internal constant T1_VAULT_TYPE = 1e4;
-    uint256 internal constant T2_VAULT_TYPE = 2e4;
-    uint256 internal constant T3_VAULT_TYPE = 3e4;
-    uint256 internal constant T4_VAULT_TYPE = 4e4;
+    using FluidVaultTypes for uint256;
 
     uint256 internal constant ORACLE_PRICE_DECIMALS = 27;
     uint256 internal constant ETH_DECIMALS = 18;
@@ -28,7 +27,7 @@ contract FluidRatioHelper is FluidHelper {
         ) = IFluidVaultResolver(FLUID_VAULT_RESOLVER).positionByNftId(_nftId);
 
         // For now, only handle the case for T1 Vaults
-        if (vaultData.constantVariables.vaultType == T1_VAULT_TYPE) {
+        if (vaultData.constantVariables.vaultType.isT1Vault()) {
             uint256 collAmount = userPosition.supply;
             address collToken = vaultData.constantVariables.supplyToken.token0;
 

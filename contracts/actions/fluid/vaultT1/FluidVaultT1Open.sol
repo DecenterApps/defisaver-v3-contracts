@@ -2,13 +2,15 @@
 
 pragma solidity =0.8.24;
 
-import { IFluidVaultT1 } from "../../../interfaces/fluid/IFluidVaultT1.sol";
-import { FluidHelper } from "../helpers/FluidHelper.sol";
+import { IFluidVaultT1 } from "../../../interfaces/fluid/vaults/IFluidVaultT1.sol";
+import { FluidSupplyLiquidityLogic } from "../logic/liquidity/FluidSupplyLiquidityLogic.sol";
+import { FluidLiquidityModel } from "../helpers/FluidLiquidityModel.sol";
+import { FluidVaultTypes } from "../helpers/FluidVaultTypes.sol";
 import { ActionBase } from "../../ActionBase.sol";
 import { TokenUtils } from "../../../utils/TokenUtils.sol";
 
 /// @title Open position on Fluid Vault T1 (1_col:1_debt)
-contract FluidVaultT1Open is ActionBase, FluidHelper {
+contract FluidVaultT1Open is ActionBase {
     using TokenUtils for address;
 
     /// @param vault The address of the Fluid Vault T1
@@ -69,40 +71,30 @@ contract FluidVaultT1Open is ActionBase, FluidHelper {
     //////////////////////////////////////////////////////////////*/
     function _open(Params memory _params) internal returns (uint256, bytes memory) {
         IFluidVaultT1.ConstantViews memory constants = IFluidVaultT1(_params.vault).constantsView();
-        address supplyToken = constants.supplyToken;
 
-        uint256 nftId;
+        bool shouldWrapBorrowedEth = 
+            _params.wrapBorrowedEth &&
+            _params.debtAmount > 0 &&
+            constants.borrowToken == TokenUtils.ETH_ADDR;
 
-        if (supplyToken == TokenUtils.ETH_ADDR) {
-            _params.collAmount = TokenUtils.WETH_ADDR.pullTokensIfNeeded(_params.from, _params.collAmount);
-            TokenUtils.withdrawWeth(_params.collAmount);
+        address sendTokensTo = shouldWrapBorrowedEth ? address(this) : _params.to;
 
-            (nftId , , ) = IFluidVaultT1(_params.vault).operate{value: _params.collAmount}(
-                0,
-                signed256(_params.collAmount),
-                signed256(_params.debtAmount),
-                _params.to
-            );
-        } else {
-            bool shouldWrapBorrowedEth = 
-                _params.wrapBorrowedEth &&
-                _params.debtAmount > 0 &&
-                constants.borrowToken == TokenUtils.ETH_ADDR;
+        (uint256 nftId, ) = FluidSupplyLiquidityLogic.supply(
+            FluidLiquidityModel.SupplyData({
+                vault: _params.vault,
+                vaultType: FluidVaultTypes.T1_VAULT_TYPE,
+                nftId: 0,
+                supplyToken: constants.supplyToken,
+                amount: _params.collAmount,
+                from: _params.from,
+                debtAmount: _params.debtAmount,
+                debtTo: sendTokensTo
+            })
+        );
 
-            _params.collAmount = supplyToken.pullTokensIfNeeded(_params.from, _params.collAmount);
-            supplyToken.approveToken(_params.vault, _params.collAmount);
-            
-            (nftId , , ) = IFluidVaultT1(_params.vault).operate(
-                0,
-                signed256(_params.collAmount),
-                signed256(_params.debtAmount),
-                shouldWrapBorrowedEth ? address(this) : _params.to
-            );
-
-            if (shouldWrapBorrowedEth) {
-                TokenUtils.depositWeth(_params.debtAmount);
-                TokenUtils.WETH_ADDR.withdrawTokens(_params.to, _params.debtAmount);    
-            }
+        if (shouldWrapBorrowedEth) {
+            TokenUtils.depositWeth(_params.debtAmount);
+            TokenUtils.WETH_ADDR.withdrawTokens(_params.to, _params.debtAmount);    
         }
 
         return (nftId, abi.encode(_params));

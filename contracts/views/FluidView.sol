@@ -2,8 +2,8 @@
 
 pragma solidity =0.8.24;
 
-import { IFluidVaultResolver } from "../../contracts/interfaces/fluid/IFluidVaultResolver.sol";
-import { IFluidLendingResolver } from "../../contracts/interfaces/fluid/IFluidLendingResolver.sol";
+import { IFluidVaultResolver } from "../interfaces/fluid/resolvers/IFluidVaultResolver.sol";
+import { IFluidLendingResolver } from "../interfaces/fluid/resolvers/IFluidLendingResolver.sol";
 import { FluidRatioHelper } from "../../contracts/actions/fluid/helpers/FluidRatioHelper.sol";
 import { IERC20 } from "../interfaces/IERC20.sol";
 

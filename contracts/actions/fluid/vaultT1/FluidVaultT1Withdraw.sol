@@ -2,14 +2,14 @@
 
 pragma solidity =0.8.24;
 
-import { IFluidVaultT1 } from "../../../interfaces/fluid/IFluidVaultT1.sol";
-import { FluidHelper } from "../helpers/FluidHelper.sol";
+import { IFluidVaultT1 } from "../../../interfaces/fluid/vaults/IFluidVaultT1.sol";
+import { FluidWithdrawLiquidityLogic } from "../logic/liquidity/FluidWithdrawLiquidityLogic.sol"; 
+import { FluidLiquidityModel } from "../helpers/FluidLiquidityModel.sol";
+import { FluidVaultTypes } from "../helpers/FluidVaultTypes.sol";
 import { ActionBase } from "../../ActionBase.sol";
-import { TokenUtils } from "../../../utils/TokenUtils.sol";
 
 /// @title Withdraw assets from Fluid Vault T1 (1_col:1_debt)
-contract FluidVaultT1Withdraw is ActionBase, FluidHelper {
-    using TokenUtils for address;
+contract FluidVaultT1Withdraw is ActionBase {
 
     /// @param vault The address of the Fluid Vault T1
     /// @param nftId ID of the NFT representing the position
@@ -67,28 +67,19 @@ contract FluidVaultT1Withdraw is ActionBase, FluidHelper {
     function _withdraw(Params memory _params) internal returns (uint256, bytes memory) {
         IFluidVaultT1.ConstantViews memory constants = IFluidVaultT1(_params.vault).constantsView();
 
-        bool shouldWrapWithdrawnEth = _params.wrapWithdrawnEth && constants.supplyToken == TokenUtils.ETH_ADDR;
-
-        // type(int256).min will trigger max withdrawal inside the vault
-        int256 withdrawAmount = _params.amount == type(uint256).max
-            ? type(int256).min
-            : -signed256(_params.amount);
-
-        (, withdrawAmount ,) = IFluidVaultT1(_params.vault).operate(
-            _params.nftId,
-            withdrawAmount,
-            0,
-            shouldWrapWithdrawnEth ? address(this) : _params.to
+        uint256 withdrawnAmount = FluidWithdrawLiquidityLogic.withdraw(
+            FluidLiquidityModel.WithdrawData({
+                vault: _params.vault,
+                vaultType: FluidVaultTypes.T1_VAULT_TYPE,
+                nftId: _params.nftId,
+                supplyToken: constants.supplyToken,
+                amount: _params.amount,
+                to: _params.to,
+                wrapWithdrawnEth: _params.wrapWithdrawnEth
+            })
         );
 
-        uint256 exactAmount = uint256(-withdrawAmount);
-
-        if (shouldWrapWithdrawnEth) {
-            TokenUtils.depositWeth(exactAmount);
-            TokenUtils.WETH_ADDR.withdrawTokens(_params.to, exactAmount);
-        }
-
-        return (exactAmount, abi.encode(_params));
+        return (withdrawnAmount, abi.encode(_params));
     }
 
     function parseInputs(bytes memory _callData) public pure returns (Params memory params) {

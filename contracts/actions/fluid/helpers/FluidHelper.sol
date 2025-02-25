@@ -2,8 +2,8 @@
 
 pragma solidity =0.8.24;
 
-import {MainnetFluidAddresses} from "./MainnetFluidAddresses.sol";
-import {DFSMath} from "../../../utils/math/DFSMath.sol";
+import {MainnetFluidAddresses} from "./addresses/MainnetFluidAddresses.sol";
 
-contract FluidHelper is DFSMath, MainnetFluidAddresses {
+//solhint-disable-next-line no-empty-blocks
+contract FluidHelper is MainnetFluidAddresses {
 }

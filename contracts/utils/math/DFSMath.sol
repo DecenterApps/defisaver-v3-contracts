@@ -4,7 +4,7 @@ pragma solidity =0.8.24;
 
 /// @title DFSMath
 /// @notice Provides math utility functions.
-contract DFSMath {
+library DFSMath {
 
     /// @notice Converts an unsigned 256-bit integer to a signed 256-bit integer.
     /// @dev Reverts if the input value exceeds the maximum value of int256.

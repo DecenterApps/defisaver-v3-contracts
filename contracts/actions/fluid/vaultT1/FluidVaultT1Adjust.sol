@@ -2,15 +2,17 @@
 
 pragma solidity =0.8.24;
 
-import { IFluidVaultT1 } from "../../../interfaces/fluid/IFluidVaultT1.sol";
-import { IFluidVaultResolver } from "../../../interfaces/fluid/IFluidVaultResolver.sol";
+import { IFluidVaultT1 } from "../../../interfaces/fluid/vaults/IFluidVaultT1.sol";
+import { IFluidVaultResolver } from "../../../interfaces/fluid/resolvers/IFluidVaultResolver.sol";
 import { FluidHelper } from "../helpers/FluidHelper.sol";
+import { DFSMath } from "../../../utils/math/DFSMath.sol";
 import { ActionBase } from "../../ActionBase.sol";
 import { TokenUtils } from "../../../utils/TokenUtils.sol";
 
 /// @title Adjust position on Fluid Vault T1 (1_col:1_debt)
 contract FluidVaultT1Adjust is ActionBase, FluidHelper {
     using TokenUtils for address;
+    using DFSMath for uint256;
 
     enum CollActionType { SUPPLY, WITHDRAW }
     enum DebtActionType { PAYBACK, BORROW }
@@ -53,8 +55,8 @@ contract FluidVaultT1Adjust is ActionBase, FluidHelper {
     /// @dev Helper struct to group local variables for adjust action. Avoids stack too deep errors.
     struct AdjustLocalVars {
         uint256 msgValue;
-        int supplyTokenAmount;
-        int borrowTokenAmount;
+        int256 supplyTokenAmount;
+        int256 borrowTokenAmount;
         bool sendWithdrawnEthAsWrapped;
         bool sendBorrowedEthAsWrapped;
         address sendTokensTo;
@@ -150,7 +152,7 @@ contract FluidVaultT1Adjust is ActionBase, FluidHelper {
             ? address(this)
             : _params.to;
 
-        ( , int exactCollAmt, int256 exactDebtAmt) = IFluidVaultT1(_params.vault).operate{ value: vars.msgValue }(
+        ( , int256 exactCollAmt, int256 exactDebtAmt) = IFluidVaultT1(_params.vault).operate{ value: vars.msgValue }(
             _params.nftId,
             vars.supplyTokenAmount,
             vars.borrowTokenAmount,
@@ -210,7 +212,7 @@ contract FluidVaultT1Adjust is ActionBase, FluidHelper {
             _supplyToken.approveToken(_params.vault, _params.collAmount);
         }
         
-        supplyTokenAmount = signed256(_params.collAmount);
+        supplyTokenAmount = _params.collAmount.signed256();
     }
 
     /// @dev Helper function to handle withdraw action
@@ -221,7 +223,7 @@ contract FluidVaultT1Adjust is ActionBase, FluidHelper {
 
         supplyTokenAmount = _params.collAmount == type(uint256).max
             ? type(int256).min
-            : -signed256(_params.collAmount);
+            : -_params.collAmount.signed256();
     }
 
     /// @dev Helper function to handle borrow action
@@ -230,7 +232,7 @@ contract FluidVaultT1Adjust is ActionBase, FluidHelper {
     function _handleBorrow(Params memory _params) internal pure returns (int256 borrowTokenAmount) {
         if (_params.debtAmount == 0) return 0;
 
-        borrowTokenAmount = signed256(_params.debtAmount);
+        borrowTokenAmount = _params.debtAmount.signed256();
     }
 
     /// @dev Helper function to handle payback action
@@ -262,7 +264,7 @@ contract FluidVaultT1Adjust is ActionBase, FluidHelper {
 
         if (_params.debtAmount > userPosition.borrow) {
             snapshot.maxPayback = true;
-            // See comments in FluidVaultT1Payback.sol
+            // See comments in FluidPaybackLiquidityLogic.sol
             _params.debtAmount = userPosition.borrow * 100001 / 100000 + 5;
             snapshot.borrowTokenBalanceBefore = _borrowToken == TokenUtils.ETH_ADDR
                 ? address(this).balance
@@ -278,7 +280,7 @@ contract FluidVaultT1Adjust is ActionBase, FluidHelper {
             _borrowToken.approveToken(_params.vault, _params.debtAmount);
         }
 
-        borrowTokenAmount = snapshot.maxPayback ? type(int256).min : -signed256(_params.debtAmount);
+        borrowTokenAmount = snapshot.maxPayback ? type(int256).min : -_params.debtAmount.signed256();
     }
 
     /// @dev Helper function to handle max payback refund

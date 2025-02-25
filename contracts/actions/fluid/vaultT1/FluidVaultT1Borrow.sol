@@ -2,14 +2,14 @@
 
 pragma solidity =0.8.24;
 
-import { IFluidVaultT1 } from "../../../interfaces/fluid/IFluidVaultT1.sol";
-import { FluidHelper } from "../helpers/FluidHelper.sol";
-import { TokenUtils } from "../../../utils/TokenUtils.sol";
+import { IFluidVaultT1 } from "../../../interfaces/fluid/vaults/IFluidVaultT1.sol";
+import { FluidBorrowLiquidityLogic } from "../logic/liquidity/FluidBorrowLiquidityLogic.sol";
+import { FluidLiquidityModel } from "../helpers/FluidLiquidityModel.sol";
+import { FluidVaultTypes } from "../helpers/FluidVaultTypes.sol";
 import { ActionBase } from "../../ActionBase.sol";
 
 /// @title Borrow assets from Fluid Vault T1 (1_col:1_debt)
-contract FluidVaultT1Borrow is ActionBase, FluidHelper {
-    using TokenUtils for address;
+contract FluidVaultT1Borrow is ActionBase {
 
     /// @param vault The address of the Fluid Vault T1
     /// @param nftId ID of the NFT representing the position
@@ -67,21 +67,19 @@ contract FluidVaultT1Borrow is ActionBase, FluidHelper {
     function _borrow(Params memory _params) internal returns (uint256, bytes memory) {
         IFluidVaultT1.ConstantViews memory constants = IFluidVaultT1(_params.vault).constantsView();
 
-        bool shouldWrapBorrowedEth = _params.wrapBorrowedEth && constants.borrowToken == TokenUtils.ETH_ADDR;
-
-        IFluidVaultT1(_params.vault).operate(
-            _params.nftId,
-            0,
-            signed256(_params.amount),
-            shouldWrapBorrowedEth ? address(this) : _params.to
+        uint256 borrowAmount = FluidBorrowLiquidityLogic.borrow(
+            FluidLiquidityModel.BorrowData({
+                vault: _params.vault,
+                vaultType: FluidVaultTypes.T1_VAULT_TYPE,
+                nftId: _params.nftId,
+                borrowToken: constants.borrowToken,
+                amount: _params.amount,
+                to: _params.to,
+                wrapBorrowedEth: _params.wrapBorrowedEth
+            })
         );
 
-        if (shouldWrapBorrowedEth) {
-            TokenUtils.depositWeth(_params.amount);
-            TokenUtils.WETH_ADDR.withdrawTokens(_params.to, _params.amount);
-        }
-
-        return (_params.amount, abi.encode(_params));
+        return (borrowAmount, abi.encode(_params));
     }
 
     function parseInputs(bytes memory _callData) public pure returns (Params memory params) {

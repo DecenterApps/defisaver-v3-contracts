@@ -2,15 +2,16 @@
 
 pragma solidity =0.8.24;
 
-import { IFluidVaultT1 } from "../../../interfaces/fluid/IFluidVaultT1.sol";
-import { IFluidVaultResolver } from "../../../interfaces/fluid/IFluidVaultResolver.sol";
+import { IFluidVaultT1 } from "../../../interfaces/fluid/vaults/IFluidVaultT1.sol";
+import { IFluidVaultResolver } from "../../../interfaces/fluid/resolvers/IFluidVaultResolver.sol";
+import { FluidPaybackLiquidityLogic } from "../logic/liquidity/FluidPaybackLiquidityLogic.sol";
+import { FluidLiquidityModel } from "../helpers/FluidLiquidityModel.sol";
 import { FluidHelper } from "../helpers/FluidHelper.sol";
+import { FluidVaultTypes } from "../helpers/FluidVaultTypes.sol";
 import { ActionBase } from "../../ActionBase.sol";
-import { TokenUtils } from "../../../utils/TokenUtils.sol";
 
 /// @title Payback debt to Fluid Vault T1 (1_col:1_debt)
 contract FluidVaultT1Payback is ActionBase, FluidHelper {
-    using TokenUtils for address;
 
     /// @param vault The address of the Fluid Vault T1
     /// @param nftId ID of the NFT representing the position
@@ -59,73 +60,23 @@ contract FluidVaultT1Payback is ActionBase, FluidHelper {
     //////////////////////////////////////////////////////////////*/
     function _payback(Params memory _params) internal returns (uint256, bytes memory) {
         IFluidVaultT1.ConstantViews memory constants = IFluidVaultT1(_params.vault).constantsView();
-        address borrowToken = constants.borrowToken;
-        bool isEthPayback = borrowToken == TokenUtils.ETH_ADDR;
 
         (IFluidVaultResolver.UserPosition memory userPosition, ) = 
             IFluidVaultResolver(FLUID_VAULT_RESOLVER).positionByNftId(_params.nftId);
 
-        uint256 borrowTokenBalanceBefore;
-        bool maxPayback;
-        if (_params.amount > userPosition.borrow) {
-            maxPayback = true;
-            // The exact full payback amount is dynamically calculated inside the vault and can surpass the recorded debt.
-            // To account for this, we need to pull slightly more than the recorded debt.
-            // We will increase the amount by 0.001% and add an extra fixed margin of 5 units.
-            // Note that even though an amount higher than the recorded debt is categorized as max payback,
-            // the user must still have sufficient tokens and allowance to cover this extra amount.
-            _params.amount = userPosition.borrow * 100001 / 100000 + 5;
-            // If we pull more than necessary, we will take a snapshot and refund any dust amount.
-            borrowTokenBalanceBefore = isEthPayback
-                ? address(this).balance
-                : borrowToken.getBalance(address(this));
-        }
-
-        if (isEthPayback) {
-            _params.amount = TokenUtils.WETH_ADDR.pullTokensIfNeeded(_params.from, _params.amount);
-            TokenUtils.withdrawWeth(_params.amount);
-        } else {
-            _params.amount = borrowToken.pullTokensIfNeeded(_params.from, _params.amount);
-            borrowToken.approveToken(_params.vault, _params.amount);
-        }
-
-        // type(int256).min will trigger max payback inside the vault.
-        int256 paybackAmount =  maxPayback ? type(int256).min : -signed256(_params.amount);
-
-        // If we send more ETH than needed, the vault will refund the dust.
-        uint256 msgValue = isEthPayback ? _params.amount : 0;
-
-        ( , , int256 exactPaybackAmount) = IFluidVaultT1(_params.vault).operate{value: msgValue}(
-            _params.nftId,
-            0,
-            paybackAmount,
-            address(0)
+        uint256 exactPaybackAmount = FluidPaybackLiquidityLogic.payback(
+            FluidLiquidityModel.PaybackData({
+                vault: _params.vault,
+                vaultType: FluidVaultTypes.T1_VAULT_TYPE,
+                nftId: _params.nftId,
+                borrowToken: constants.borrowToken,
+                amount: _params.amount,
+                from: _params.from,
+                position: userPosition
+            })
         );
 
-        if (maxPayback) {
-            uint256 borrowTokenBalanceAfter = isEthPayback
-                ? address(this).balance
-                : borrowToken.getBalance(address(this));
-
-            // Sanity check: if we didn't perform a max payback directly from the wallet,
-            // the number of borrowed tokens should not decrease.
-            if (_params.from != address(this)) {
-                require(borrowTokenBalanceAfter >= borrowTokenBalanceBefore);
-            }
-
-            // We pulled slightly more than needed, so refund dust amount to 'from' address.
-            if (borrowTokenBalanceAfter > borrowTokenBalanceBefore) {
-                uint256 dustAmount = borrowTokenBalanceAfter - borrowTokenBalanceBefore;
-                // This also supports plain ETH.
-                borrowToken.withdrawTokens(_params.from, dustAmount);
-                // Remove any dust approval left.
-                if (!isEthPayback) {
-                    borrowToken.approveToken(_params.vault, 0);
-                }
-            }
-        }
-
-        return (uint256(-exactPaybackAmount), abi.encode(_params));
+        return (exactPaybackAmount, abi.encode(_params));
     }
 
     function parseInputs(bytes memory _callData) public pure returns (Params memory params) {
